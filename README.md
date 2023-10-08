@@ -1,5 +1,5 @@
 # UnBED
-Codebase for the ACL 2023 paper: "Uncertainty-Aware Bootstrap Learning for Joint Extraction on Distantly-Supervised Data"
+Codebase for the ACL 2023 paper: "Uncertainty-Aware Bootstrap Learning for Joint Extraction on Distantly-Supervised Data" ([PDF](https://aclanthology.org/2023.acl-short.116.pdf))
 
 
 ### Quick Start
@@ -84,3 +84,16 @@ python run_uncertainty.py \
     --overwrite_output_dir \
     --baseline
 ``` 
+
+
+
+### Citation
+If you find this repo useful, please cite our paper:
+```
+@inproceedings{li2023uncertainty,
+  title={Uncertainty-Aware Bootstrap Learning for Joint Extraction on Distantly-Supervised Data},
+  author={Li, Yufei and Yu, Xiao and Liu, Yanchi and Chen, Haifeng and Liu, Cong},
+  booktitle={Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year={2023}
+}
+```
