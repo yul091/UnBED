@@ -1,0 +1,6 @@
+torch
+torchvision
+datasets
+evaluate
+transformers[torch]==4.24.0
+seqeval
