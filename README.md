@@ -89,7 +89,7 @@ python run_uncertainty.py \
 
 ### Citation
 If you find this repo useful, please cite our paper:
-```
+```bibtex
 @inproceedings{li2023uncertainty,
   title={Uncertainty-Aware Bootstrap Learning for Joint Extraction on Distantly-Supervised Data},
   author={Li, Yufei and Yu, Xiao and Liu, Yanchi and Chen, Haifeng and Liu, Cong},
