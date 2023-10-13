@@ -2,7 +2,7 @@
 Codebase for the ACL 2023 paper: "Uncertainty-Aware Bootstrap Learning for Joint Extraction on Distantly-Supervised Data" ([PDF](https://aclanthology.org/2023.acl-short.116.pdf))
 
 <p align="center">
-  <img src="figure/Joint_model.png" width="60%" height="60%">
+  <img src="figure/Joint_model.png" width="30%" height="60%">
 </p>
 
 ### Quick Start
