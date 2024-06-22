@@ -58,7 +58,7 @@ from transformers.file_utils import (
     is_sagemaker_mp_enabled,
     is_tf_available,
     is_torch_available,
-    is_torch_tpu_available,
+    #is_torch_tpu_available,
 )
 from transformers.modeling_utils import unwrap_model
 from transformers.models.gpt2 import GPT2ForTokenClassification, GPT2TokenizerFast
@@ -74,10 +74,10 @@ from trainer import JointTrainer, MultiTrainer
 if is_datasets_available():
     import datasets
 
-if is_torch_tpu_available():
-    import torch_xla.core.xla_model as xm
-    import torch_xla.debug.metrics as met
-    import torch_xla.distributed.parallel_loader as pl
+#if is_torch_tpu_available():
+#    import torch_xla.core.xla_model as xm
+#    import torch_xla.debug.metrics as met
+#    import torch_xla.distributed.parallel_loader as pl
 
 if is_sagemaker_mp_enabled():
     import smdistributed.modelparallel.torch as smp
@@ -1313,10 +1313,10 @@ class Training_Pipeline:
         model = self._wrap_model(model)
         model = model.to(self.training_args.device)
 
-        if is_torch_tpu_available():
-            dataloader = pl.ParallelLoader(dataloader, [self.training_args.device]).per_device_loader(
-                self.training_args.device
-            )
+        #if is_torch_tpu_available():
+        #    dataloader = pl.ParallelLoader(dataloader, [self.training_args.device]).per_device_loader(
+        #        self.training_args.device
+        #    )
 
         if not initial:
             # Model uncertainty (MC dropout)
