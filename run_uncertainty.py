@@ -58,7 +58,7 @@ from transformers.file_utils import (
     is_sagemaker_mp_enabled,
     is_tf_available,
     is_torch_available,
-    is_torch_tpu_available,
+    #is_torch_tpu_available,
 )
 from transformers.modeling_utils import unwrap_model
 from transformers.models.gpt2 import GPT2ForTokenClassification, GPT2TokenizerFast
@@ -74,10 +74,10 @@ from trainer import JointTrainer, MultiTrainer
 if is_datasets_available():
     import datasets
 
-if is_torch_tpu_available():
-    import torch_xla.core.xla_model as xm
-    import torch_xla.debug.metrics as met
-    import torch_xla.distributed.parallel_loader as pl
+#if is_torch_tpu_available():
+#    import torch_xla.core.xla_model as xm
+#    import torch_xla.debug.metrics as met
+#    import torch_xla.distributed.parallel_loader as pl
 
 if is_sagemaker_mp_enabled():
     import smdistributed.modelparallel.torch as smp
@@ -813,6 +813,32 @@ class Training_Pipeline:
         """
         return common_cal(preds, labels)
 
+    def flatten(l):
+        return [item for sublist in l for item in sublist]
+
+    metrics_macro_weighted = ['precision','recall','f1'] #macro and spec make no sense in macro/weighted 
+    avg_types= ['macro','weighted','micro']# just to be consistent
+    by_class_metrics = ['imbalance','precision','recall','f1','bias_f1','specificity'] 
+    notations = ['']
+    def write_metrics(m_values):
+        out = ""
+        tab= '\t'
+        x = lambda  x : id2label[x] 
+        for n in notations:
+            out += f'Classes:\t{tab.join(map(x,m_values[f"labels{n}"]))}\n'
+            for m in by_class_metrics:
+                out += f'{m.upper()}{n} by class score:\t{tab.join(map(str,m_values[f"{m}_by_class{n}"]))}\n'
+            for m in metrics_macro_weighted:
+                for avg in avg_types:
+                    out += f'{m.upper()}_{avg.upper()}{n} score:\t{m_values[f"{m}_{avg}{n}"]}\n'
+            for m in avg_types:
+                out += f'Bias F1{m.upper()}{n} :\t{m_values[f"bias_f1{m}{n}"]}\n'
+                    
+        model.train()
+        with open(datafile+f'/metrics_per_classes_training.csv','a') as f:
+            f.write(out)
+
+
     def compute_metrics(self, p):
         """
         predictions logits (np.ndarray: N X T X T X V): # instances X query dimension X token dimension X label dimension.
@@ -880,6 +906,15 @@ class Training_Pipeline:
         pre_notag = TP_notag / Pos if Pos else 0.0
         rec_notag = TP_notag / Neg if Neg else 0.0
         f1_notag = 2.0 * pre_notag * rec_notag / (pre_notag + rec_notag) if (pre_notag or rec_notag) else 0.0
+	    #imb = 2 * (tp + fn) / (tp + fp + tn  + fn) -1 
+        #left = 2* r['sens']*(1+ imb) /((1+r['sens'])*(1+imb)+ (1-r['spec'])*(1-imb) ) 
+        #right = 2 * r['sens'] / (2 + r['sens'] - r['spec']) 
+        #bias = left- right 
+        imb_notag =  2* (Neg)/ (TP_notag + false_tag)  -1 
+        spec_notag = (false_tag - re_fn - re_fp)/ false_tag# I DONT TRUST THIS
+        left_notag = 2* rec_notag*(1+ imb_notag) /((1+rec_notag)*(1+imb_notag)+ (1-spec_notag)*(1-imb_notag) ) 
+        right_notag  = 2 * rec_notag / (2 + rec_notag - spec_notag) 
+        bias_notag   = left_notag  - right_notag   
 
         pre_tag = TP_tag / Pos if Pos else 0.0
         rec_tag = TP_tag / Neg if Neg else 0.0
@@ -1313,10 +1348,10 @@ class Training_Pipeline:
         model = self._wrap_model(model)
         model = model.to(self.training_args.device)
 
-        if is_torch_tpu_available():
-            dataloader = pl.ParallelLoader(dataloader, [self.training_args.device]).per_device_loader(
-                self.training_args.device
-            )
+        #if is_torch_tpu_available():
+        #    dataloader = pl.ParallelLoader(dataloader, [self.training_args.device]).per_device_loader(
+        #        self.training_args.device
+        #    )
 
         if not initial:
             # Model uncertainty (MC dropout)

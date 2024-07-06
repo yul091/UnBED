@@ -4,3 +4,6 @@ datasets
 evaluate
 transformers[torch]==4.24.0
 seqeval
+alpaca
+alpaca-ml
+
